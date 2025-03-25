@@ -3,182 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VideoPrex - Subir Video con Anuncio</title>
+    <title>ViziBoost - Generar URL de Video</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.8/plyr.css" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
         body {
-            background-color: #121212;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f2fd; /* Fondo suave azul claro */
+            color: #333; /* Color de texto */
         }
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+        h2, h3 {
+            color: #1976d2; /* Azul más oscuro para los encabezados */
         }
-        h2 {
-            color: #00ff99;
-            margin-bottom: 15px;
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
         }
-        input, button {
+        input[type="text"],
+        textarea {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: none;
+            margin: 5px 0 15px 0;
+            border: 1px solid #90caf9; /* Borde azul claro */
+            border-radius: 4px;
+            box-sizing: border-box;
         }
         button {
-            background-color: #00ff99;
-            color: black;
-            font-weight: bold;
+            background-color: #42a5f5; /* Azul más brillante para el botón */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #00cc77;
+            background-color: #1e88e5; /* Azul más oscuro al pasar el mouse */
         }
-        video {
-            width: 100%;
-            margin-top: 15px;
-            border-radius: 10px;
-            display: none;
+        p {
+            margin-top: 20px;
+            color: #333;
         }
-        #status {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #00ff99;
-        }
-        #generatedUrl {
-            margin-top: 10px;
-            word-break: break-all;
-            color: #00ff99;
-            display: none;
+        .error {
+            color: red;
         }
     </style>
 </head>
 <body>
+    <h2>ViziBoost - Genera tu URL de Video</h2>
 
-    <div class="container">
-        <h2>VideoPrex</h2>
-        <p>Sube un video .mp4 o ingresa una URL para agregar el anuncio.</p>
-        
-        <input type="file" id="fileInput" accept="video/mp4">
-        <button onclick="uploadFile()">Subir Video</button>
-        
-        <input type="text" id="videoUrlInput" placeholder="Pega la URL de un video .mp4">
-        <button onclick="loadVideo()">Agregar Anuncio</button>
+    <label for="videoUrl">URL del Video (.mp4):</label>
+    <input type="text" id="videoUrl" placeholder="Ejemplo: https://www.ejemplo.com/video.mp4">
 
-        <p id="status"></p>
-        <video id="videoPlayer" controls></video>
+    <h3>Configurar Anuncios</h3>
+    
+    <label for="interstitialCode">Intersticial:</label>
+    <textarea id="interstitialCode" placeholder="Código de script para intersticial"></textarea>
 
-        <p id="generatedUrl"></p>
-        <button id="copyButton" onclick="copyUrl()" style="display: none;">Copiar URL</button>
-        <button id="testButton" onclick="openInNewTab()" style="display: none;">Probar en Nueva Pestaña</button>
-    </div>
+    <label for="popunderCode">Popunder:</label>
+    <textarea id="popunderCode" placeholder="Código de script para popunder"></textarea>
 
-    <!-- Script del Popunder de AdsTerra -->
-    <script type='text/javascript' src='//pl26127826.effectiveratecpm.com/1a/de/ea/1adeea205975aa4ce2b6af0a9a8f33d0.js'></script>
+    <label for="bannerCode">Banner:</label>
+    <textarea id="bannerCode" placeholder="Código de script para banner"></textarea>
+
+    <label for="socialBarCode">Barra Social:</label>
+    <textarea id="socialBarCode" placeholder="Código de script para barra social"></textarea>
+
+    <button onclick="generarURL()">Generar URL</button>
+    <p id="status"></p>
 
     <script>
-        const API_KEY = "TLz50sfoqZ0HPOh2mjeZm0NiVTm2p7ru";
+        function generarURL() {
+            const videoUrl = document.getElementById("videoUrl").value.trim();
+            const interstitialCode = document.getElementById("interstitialCode").value.trim();
+            const popunderCode = document.getElementById("popunderCode").value.trim();
+            const bannerCode = document.getElementById("bannerCode").value.trim();
+            const socialBarCode = document.getElementById("socialBarCode").value.trim();
+            const statusElement = document.getElementById("status");
+            statusElement.innerHTML = ""; // Limpiar el estado antes de mostrar uno nuevo
 
-        async function uploadFile() {
-            const fileInput = document.getElementById("fileInput");
-            const statusText = document.getElementById("status");
-
-            if (fileInput.files.length === 0) {
-                alert("Selecciona un archivo .mp4.");
+            // Validar que la URL sea un archivo .mp4
+            if (!videoUrl || !videoUrl.endsWith('.mp4')) {
+                statusElement.innerHTML = "<span class='error'>Ingresa una URL válida de video .mp4</span>";
                 return;
             }
 
-            const file = fileInput.files[0];
-            if (file.type !== "video/mp4") {
-                alert("Solo se permiten archivos .mp4.");
-                return;
-            }
+            // Crear una ID única para la URL generada
+            const videoId = new Date().getTime();
+            const videoLink = `ver-video.html?url=${encodeURIComponent(videoUrl)}&interstitialCode=${encodeURIComponent(interstitialCode)}&popunderCode=${encodeURIComponent(popunderCode)}&bannerCode=${encodeURIComponent(bannerCode)}&socialBarCode=${encodeURIComponent(socialBarCode)}`;
 
-            statusText.innerHTML = "Subiendo video...";
-
-            let formData = new FormData();
-            formData.append("file", file);
-
-            try {
-                let serverResponse = await fetch("https://api.gofile.io/getServer");
-                let serverData = await serverResponse.json();
-                let server = serverData.data.server;
-
-                let uploadResponse = await fetch(`https://${server}.gofile.io/uploadFile`, {
-                    method: "POST",
-                    body: formData
-                });
-
-                let uploadData = await uploadResponse.json();
-
-                if (uploadData.status === "ok") {
-                    let videoUrl = uploadData.data.downloadPage;
-                    generateVideoUrl(videoUrl);
-                    statusText.innerHTML = "¡Subida exitosa!";
-                } else {
-                    statusText.innerHTML = "Error al subir el video.";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                statusText.innerHTML = "Hubo un problema al subir el video.";
-            }
-        }
-
-        function loadVideo() {
-            const videoUrl = document.getElementById("videoUrlInput").value.trim();
-            if (videoUrl === "") {
-                alert("Ingresa una URL de video .mp4.");
-                return;
-            }
-            generateVideoUrl(videoUrl);
-        }
-
-        function generateVideoUrl(videoUrl) {
-            let fullUrl = `https://videoprex.com/watch?url=${encodeURIComponent(videoUrl)}`;
-            let generatedUrlElement = document.getElementById("generatedUrl");
-            let copyButton = document.getElementById("copyButton");
-            let testButton = document.getElementById("testButton");
-
-            generatedUrlElement.innerHTML = `URL Generada: <a href="${fullUrl}" target="_blank">${fullUrl}</a>`;
-            generatedUrlElement.style.display = "block";
-            copyButton.style.display = "inline-block";
-            testButton.style.display = "inline-block";
-
-            showVideo(videoUrl);
-        }
-
-        function copyUrl() {
-            let urlText = document.getElementById("generatedUrl").innerText.replace("URL Generada: ", "");
-            navigator.clipboard.writeText(urlText).then(() => {
-                alert("URL copiada al portapapeles.");
-            });
-        }
-
-        function openInNewTab() {
-            let urlText = document.getElementById("generatedUrl").innerText.replace("URL Generada: ", "");
-            window.open(urlText, "_blank");
-        }
-
-        function showVideo(videoUrl) {
-            let videoPlayer = document.getElementById("videoPlayer");
-            videoPlayer.src = videoUrl;
-            videoPlayer.style.display = "block";
+            // Mostrar la URL generada
+            statusElement.innerHTML = `✅ URL generada: <a href="${videoLink}" target="_blank">${videoLink}</a>`;
         }
     </script>
-
 </body>
 </html>
