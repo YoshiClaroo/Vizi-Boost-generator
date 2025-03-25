@@ -11,7 +11,7 @@
             background-color: #e3f2fd; /* Fondo suave azul claro */
             color: #333; /* Color de texto */
         }
-        h2, h3 {
+        h2 {
             color: #1976d2; /* Azul más oscuro para los encabezados */
         }
         label {
@@ -19,8 +19,7 @@
             margin-top: 10px;
             display: block;
         }
-        input[type="text"],
-        textarea {
+        input[type="text"], textarea {
             width: 100%;
             padding: 10px;
             margin: 5px 0 15px 0;
@@ -43,9 +42,6 @@
             margin-top: 20px;
             color: #333;
         }
-        .error {
-            color: red;
-        }
     </style>
 </head>
 <body>
@@ -54,19 +50,8 @@
     <label for="videoUrl">URL del Video (.mp4):</label>
     <input type="text" id="videoUrlInput" placeholder="Ejemplo: https://www.ejemplo.com/video.mp4">
 
-    <h3>Configurar Anuncios</h3>
-    
-    <label for="interstitialCode">Intersticial:</label>
-    <textarea id="interstitialCode" placeholder="Código de anuncio Intersticial (opcional)"></textarea>
-
-    <label for="popunderCode">Popunder:</label>
-    <textarea id="popunderCode" placeholder="Código de anuncio Popunder (opcional)"></textarea>
-
-    <label for="bannerCode">Banner:</label>
-    <textarea id="bannerCode" placeholder="Código de anuncio Banner (opcional)"></textarea>
-
-    <label for="socialBarCode">Barra Social:</label>
-    <textarea id="socialBarCode" placeholder="Código de Social Bar (opcional)"></textarea>
+    <label for="directLink">Direct Link para Popunder:</label>
+    <input type="text" id="directLinkInput" placeholder="Ejemplo: https://www.tu-direct-link.com">
 
     <button onclick="generateVideoUrl()">Generar URL</button>
 
@@ -75,25 +60,15 @@
     <script>
         function generateVideoUrl() {
             const videoUrl = document.getElementById("videoUrlInput").value.trim();
-            const interstitialCode = encodeURIComponent(document.getElementById("interstitialCode").value.trim());
-            const popunderCode = encodeURIComponent(document.getElementById("popunderCode").value.trim());
-            const bannerCode = encodeURIComponent(document.getElementById("bannerCode").value.trim());
-            const socialBarCode = encodeURIComponent(document.getElementById("socialBarCode").value.trim());
+            const directLink = encodeURIComponent(document.getElementById("directLinkInput").value.trim());
 
             if (!videoUrl || !videoUrl.endsWith('.mp4')) {
                 alert("Ingresa una URL válida de video .mp4.");
                 return;
             }
 
-            let urlParams = new URLSearchParams();
-            urlParams.append("url", videoUrl);
-
-            if (interstitialCode) urlParams.append("interstitialCode", interstitialCode);
-            if (popunderCode) urlParams.append("popunderCode", popunderCode);
-            if (bannerCode) urlParams.append("bannerCode", bannerCode);
-            if (socialBarCode) urlParams.append("socialBarCode", socialBarCode);
-
-            const generatedUrl = `https://viziboosview.netlify.app/?${urlParams.toString()}`;
+            // Generar la URL apuntando a la página de visualización
+            const generatedUrl = `https://viziboosview.netlify.app/?url=${encodeURIComponent(videoUrl)}&directLink=${directLink}`;
             
             document.getElementById("generatedUrl").innerHTML = `URL Generada: <a href="${generatedUrl}" target="_blank">${generatedUrl}</a>`;
             document.getElementById("generatedUrl").style.display = "block";
