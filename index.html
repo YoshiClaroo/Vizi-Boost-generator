@@ -3,95 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generar URL para ViziBoost</title>
+    <title>ViziBoost - Generar URL</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
         body {
-            background-color: #121212;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f2fd; /* Fondo suave azul claro */
+            color: #333; /* Color de texto */
         }
         h2 {
-            color: #00ff99;
-            margin-bottom: 15px;
+            color: #1976d2; /* Azul más oscuro para los encabezados */
         }
-        input, button {
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input[type="text"] {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #333;
-            font-size: 16px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #90caf9; /* Borde azul claro */
+            border-radius: 4px;
+            box-sizing: border-box;
         }
         button {
-            background-color: #00ff99;
-            color: black;
+            background-color: #42a5f5; /* Azul más brillante para el botón */
+            color: white;
             border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
         }
         button:hover {
-            background-color: #00cc77;
+            background-color: #1e88e5; /* Azul más oscuro al pasar el mouse */
         }
-        #generatedUrl {
-            margin-top: 15px;
-            word-break: break-word;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            font-weight: bold;
-            display: none;
+        p {
+            margin-top: 20px;
+            color: #333;
         }
     </style>
 </head>
 <body>
+    <h2>ViziBoost - Genera tu URL de Video</h2>
 
-    <div class="container">
-        <h2>Generar URL para ViziBoost</h2>
+    <label for="videoUrl">URL del Video (.mp4):</label>
+    <input type="text" id="videoUrlInput" placeholder="Ejemplo: https://www.ejemplo.com/video.mp4">
 
-        <label>URL del Video:</label>
-        <input type="url" id="videoUrl" placeholder="Ejemplo: https://www.youtube.com/watch?v=xxxxx">
+    <label for="directLink">Direct Link para Popunder:</label>
+    <input type="text" id="directLinkInput" placeholder="Ejemplo: https://www.tu-direct-link.com">
 
-        <label>Direct Link (Popunder):</label>
-        <input type="url" id="directLink" placeholder="Ejemplo: https://example.com">
+    <label for="facebookGroup">URL del Grupo de Facebook:</label>
+    <input type="text" id="facebookGroupInput" placeholder="Ejemplo: https://www.facebook.com/groups/xxxxx">
 
-        <label>URL del Grupo de Facebook:</label>
-        <input type="url" id="facebookGroup" placeholder="Ejemplo: https://www.facebook.com/groups/xxxxx">
+    <button onclick="generateVideoUrl()">Generar URL</button>
 
-        <button onclick="generateUrl()">Generar URL</button>
-
-        <div id="generatedUrl"></div>
-    </div>
+    <p id="generatedUrl"></p>
 
     <script>
-        function generateUrl() {
-            const videoUrl = encodeURIComponent(document.getElementById("videoUrl").value);
-            const directLink = encodeURIComponent(document.getElementById("directLink").value);
-            const facebookGroup = encodeURIComponent(document.getElementById("facebookGroup").value);
+        function generateVideoUrl() {
+            const videoUrl = document.getElementById("videoUrlInput").value.trim();
+            const directLink = encodeURIComponent(document.getElementById("directLinkInput").value.trim());
+            const facebookGroup = encodeURIComponent(document.getElementById("facebookGroupInput").value.trim());
 
-            if (!videoUrl) {
-                alert("Por favor, ingresa una URL de video.");
+            if (!videoUrl || !videoUrl.endsWith('.mp4')) {
+                alert("Ingresa una URL válida de video .mp4.");
                 return;
             }
 
-            let generatedUrl = `ver-video.html?url=${videoUrl}`;
+            // Generar la URL apuntando a la página de visualización
+            let generatedUrl = `https://viziboosview.netlify.app/?url=${encodeURIComponent(videoUrl)}`;
 
             if (directLink) {
                 generatedUrl += `&directLink=${directLink}`;
@@ -99,12 +80,10 @@
             if (facebookGroup) {
                 generatedUrl += `&facebookGroup=${facebookGroup}`;
             }
-
-            const resultDiv = document.getElementById("generatedUrl");
-            resultDiv.innerHTML = `<strong>URL Generada:</strong><br><a href="${generatedUrl}" target="_blank">${generatedUrl}</a>`;
-            resultDiv.style.display = "block";
+            
+            document.getElementById("generatedUrl").innerHTML = `URL Generada: <a href="${generatedUrl}" target="_blank">${generatedUrl}</a>`;
+            document.getElementById("generatedUrl").style.display = "block";
         }
     </script>
-
 </body>
 </html>
