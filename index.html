@@ -5,94 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ViziBoost - Generar URL</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
         body {
-            background-color: #121212;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #e3f2fd; /* Fondo suave azul claro */
+            color: #333; /* Color de texto */
         }
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+        h2, h3 {
+            color: #1976d2; /* Azul más oscuro para los encabezados */
         }
-        h2 {
-            color: #00ff99;
-            margin-bottom: 15px;
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
         }
-        input, textarea, button {
+        input[type="text"],
+        textarea {
             width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: none;
+            margin: 5px 0 15px 0;
+            border: 1px solid #90caf9; /* Borde azul claro */
+            border-radius: 4px;
+            box-sizing: border-box;
         }
         button {
-            background-color: #00ff99;
-            color: black;
-            font-weight: bold;
+            background-color: #42a5f5; /* Azul más brillante para el botón */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #00cc77;
+            background-color: #1e88e5; /* Azul más oscuro al pasar el mouse */
         }
-        #generatedUrl {
-            margin-top: 10px;
-            color: #00ff99;
-            display: none;
+        p {
+            margin-top: 20px;
+            color: #333;
+        }
+        .error {
+            color: red;
         }
     </style>
 </head>
 <body>
+    <h2>ViziBoost - Genera tu URL de Video</h2>
 
-    <div class="container">
-        <h2>ViziBoost</h2>
-        <p>Sube un video .mp4 o ingresa una URL para agregar anuncios.</p>
-        
-        <input type="text" id="videoUrlInput" placeholder="Pega la URL de un video .mp4">
+    <label for="videoUrl">URL del Video (.mp4):</label>
+    <input type="text" id="videoUrlInput" placeholder="Ejemplo: https://www.ejemplo.com/video.mp4">
 
-        <textarea id="interstitialCode" placeholder="Código de anuncio Intersticial (opcional)"></textarea>
-        <textarea id="popunderCode" placeholder="Código de anuncio Popunder (opcional)"></textarea>
-        <textarea id="bannerCode" placeholder="Código de anuncio Banner (opcional)"></textarea>
-        <textarea id="socialBarCode" placeholder="Código de Social Bar (opcional)"></textarea>
+    <h3>Configurar Anuncios</h3>
+    
+    <label for="interstitialCode">Intersticial:</label>
+    <textarea id="interstitialCode" placeholder="Código de anuncio Intersticial (opcional)"></textarea>
 
-        <button onclick="generateUrl()">Generar URL</button>
+    <label for="popunderCode">Popunder:</label>
+    <textarea id="popunderCode" placeholder="Código de anuncio Popunder (opcional)"></textarea>
 
-        <p id="generatedUrl"></p>
-    </div>
+    <label for="bannerCode">Banner:</label>
+    <textarea id="bannerCode" placeholder="Código de anuncio Banner (opcional)"></textarea>
+
+    <label for="socialBarCode">Barra Social:</label>
+    <textarea id="socialBarCode" placeholder="Código de Social Bar (opcional)"></textarea>
+
+    <button onclick="generateVideoUrl()">Generar URL</button>
+
+    <p id="generatedUrl"></p>
 
     <script>
-        function generateUrl() {
+        function generateVideoUrl() {
             const videoUrl = document.getElementById("videoUrlInput").value.trim();
             const interstitialCode = encodeURIComponent(document.getElementById("interstitialCode").value.trim());
             const popunderCode = encodeURIComponent(document.getElementById("popunderCode").value.trim());
             const bannerCode = encodeURIComponent(document.getElementById("bannerCode").value.trim());
             const socialBarCode = encodeURIComponent(document.getElementById("socialBarCode").value.trim());
 
-            if (videoUrl === "" || !videoUrl.endsWith('.mp4')) {
+            if (!videoUrl || !videoUrl.endsWith('.mp4')) {
                 alert("Ingresa una URL válida de video .mp4.");
                 return;
             }
 
-            // Asegurar que la URL apunte a la página correcta
-            const generatedUrl = `https://viziboosview.netlify.app/?url=${encodeURIComponent(videoUrl)}&interstitialCode=${interstitialCode}&popunderCode=${popunderCode}&bannerCode=${bannerCode}&socialBarCode=${socialBarCode}`;
+            let urlParams = new URLSearchParams();
+            urlParams.append("url", videoUrl);
 
+            if (interstitialCode) urlParams.append("interstitialCode", interstitialCode);
+            if (popunderCode) urlParams.append("popunderCode", popunderCode);
+            if (bannerCode) urlParams.append("bannerCode", bannerCode);
+            if (socialBarCode) urlParams.append("socialBarCode", socialBarCode);
+
+            const generatedUrl = `https://viziboosview.netlify.app/?${urlParams.toString()}`;
+            
             document.getElementById("generatedUrl").innerHTML = `URL Generada: <a href="${generatedUrl}" target="_blank">${generatedUrl}</a>`;
             document.getElementById("generatedUrl").style.display = "block";
         }
     </script>
-
 </body>
 </html>
