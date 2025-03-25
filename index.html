@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoPrex - Subir Video con Anuncio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+        }
+        h2 {
+            color: #00ff99;
+            margin-bottom: 15px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #00ff99;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00cc77;
+        }
+        video {
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #00ff99;
+        }
+        #generatedUrl {
+            margin-top: 10px;
+            word-break: break-all;
+            color: #00ff99;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>VideoPrex</h2>
+        <p>Sube un video .mp4 o ingresa una URL para agregar el anuncio.</p>
+        
+        <input type="file" id="fileInput" accept="video/mp4">
+        <button onclick="uploadFile()">Subir Video</button>
+        
+        <input type="text" id="videoUrlInput" placeholder="Pega la URL de un video .mp4">
+        <button onclick="loadVideo()">Agregar Anuncio</button>
+
+        <p id="status"></p>
+        <video id="videoPlayer" controls></video>
+
+        <p id="generatedUrl"></p>
+        <button id="copyButton" onclick="copyUrl()" style="display: none;">Copiar URL</button>
+        <button id="testButton" onclick="openInNewTab()" style="display: none;">Probar en Nueva Pestaña</button>
+    </div>
+
+    <!-- Script del Popunder de AdsTerra -->
+    <script type='text/javascript' src='//pl26127826.effectiveratecpm.com/1a/de/ea/1adeea205975aa4ce2b6af0a9a8f33d0.js'></script>
+
+    <script>
+        const API_KEY = "TLz50sfoqZ0HPOh2mjeZm0NiVTm2p7ru";
+
+        async function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            const statusText = document.getElementById("status");
+
+            if (fileInput.files.length === 0) {
+                alert("Selecciona un archivo .mp4.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (file.type !== "video/mp4") {
+                alert("Solo se permiten archivos .mp4.");
+                return;
+            }
+
+            statusText.innerHTML = "Subiendo video...";
+
+            let formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                let serverResponse = await fetch("https://api.gofile.io/getServer");
+                let serverData = await serverResponse.json();
+                let server = serverData.data.server;
+
+                let uploadResponse = await fetch(`https://${server}.gofile.io/uploadFile`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                let uploadData = await uploadResponse.json();
+
+                if (uploadData.status === "ok") {
+                    let videoUrl = uploadData.data.downloadPage;
+                    generateVideoUrl(videoUrl);
+                    statusText.innerHTML = "¡Subida exitosa!";
+                } else {
+                    statusText.innerHTML = "Error al subir el video.";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                statusText.innerHTML = "Hubo un problema al subir el video.";
+            }
+        }
+
+        function loadVideo() {
+            const videoUrl = document.getElementById("videoUrlInput").value.trim();
+            if (videoUrl === "") {
+                alert("Ingresa una URL de video .mp4.");
+                return;
+            }
+            generateVideoUrl(videoUrl);
+        }
+
+        function generateVideoUrl(videoUrl) {
+            let fullUrl = `https://videoprex.com/watch?url=${encodeURIComponent(videoUrl)}`;
+            let generatedUrlElement = document.getElementById("generatedUrl");
+            let copyButton = document.getElementById("copyButton");
+            let testButton = document.getElementById("testButton");
+
+            generatedUrlElement.innerHTML = `URL Generada: <a href="${fullUrl}" target="_blank">${fullUrl}</a>`;
+            generatedUrlElement.style.display = "block";
+            copyButton.style.display = "inline-block";
+            testButton.style.display = "inline-block";
+
+            showVideo(videoUrl);
+        }
+
+        function copyUrl() {
+            let urlText = document.getElementById("generatedUrl").innerText.replace("URL Generada: ", "");
+            navigator.clipboard.writeText(urlText).then(() => {
+                alert("URL copiada al portapapeles.");
+            });
+        }
+
+        function openInNewTab() {
+            let urlText = document.getElementById("generatedUrl").innerText.replace("URL Generada: ", "");
+            window.open(urlText, "_blank");
+        }
+
+        function showVideo(videoUrl) {
+            let videoPlayer = document.getElementById("videoPlayer");
+            videoPlayer.src = videoUrl;
+            videoPlayer.style.display = "block";
+        }
+    </script>
+
+</body>
+</html>
